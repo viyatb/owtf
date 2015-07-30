@@ -42,7 +42,7 @@ if [ ! -f $crawljax_jar ]; then
     # Download jars from repo
     wget https://github.com/crawljax/crawljax/releases/download/crawljax-3.6/crawljax-web-3.6-distribution.zip -O crawljax_web.zip;
     # Extract
-    unzip crawljax_web.zip -d $crawljax_jars
+    unzip crawljax_web.zip -d $ROOTDIR/crawljax
     echo "Extract complete!"
 fi
 
