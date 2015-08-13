@@ -1,11 +1,9 @@
 #!/usr/bin/python2
-import json
 import sys
 import os
 import signal
 import subprocess
 from framework.dependency_management.dependency_resolver import BaseComponent
-from framework.utils import FileOperations
 from framework.dependency_management.interfaces import CrawljaxInterface
 
 
