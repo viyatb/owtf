@@ -343,6 +343,27 @@ class ForwardToZAPHandler(custom_handlers.APIRequestHandler):
                 raise tornado.web.HTTPError(400)
 
 
+class CrawljaxHandler(custom_handlers.APIRequestHandler):
+    SUPPORTED_METHODS = ['POST']
+
+    def get(self, target_id=None):
+        raise tornado.web.HTTPError(400)
+
+    def post(self, target_id=None):
+        should_start = self.get_argument('start', None)
+        if should_start:
+            self.get_component("crawljax").start()
+
+    def put(self, target_id=None):
+        raise tornado.web.HTTPError(400)
+
+    def patch(self, target_id=None):
+        raise tornado.web.HTTPError(400)
+
+    def delete(self, target_id=None):
+        raise tornado.web.HTTPError(400)
+
+
 class TransactionDataHandler(custom_handlers.APIRequestHandler):
     SUPPORTED_METHODS = ['GET', 'DELETE']
 
