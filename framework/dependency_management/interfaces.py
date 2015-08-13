@@ -354,6 +354,23 @@ class ZestInterface(AbstractInterface):
     def addtoRecordedTrans(self): pass
 
 
+class CrawljaxInterface(AbstractInterface):
+    @abstractmethod
+    def getTarget(self): pass
+
+    @abstractmethod
+    def start(self): pass
+
+    @abstractmethod
+    def stop(self): pass
+
+    @abstractmethod
+    def link_to_output(self): pass
+
+    @abstractmethod
+    def is_running(): pass 
+
+
 class TargetInterface(AbstractInterface):
 
     @abstractmethod
