@@ -165,8 +165,6 @@ class PluginDB(BaseComponent, DBPluginInterface):
 
     def GetAllTestGroups(self):
         test_groups = self.db.session.query(models.TestGroup).order_by(models.TestGroup.priority.desc()).all()
-        print(test_groups[-1])
-        import pdb; pdb.set_trace()
         return(self.DeriveTestGroupDicts(test_groups))
 
     def GetAllGroups(self):
