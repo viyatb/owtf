@@ -368,7 +368,7 @@ class CrawljaxInterface(AbstractInterface):
     def link_to_output(self): pass
 
     @abstractmethod
-    def is_running(): pass 
+    def init(): pass 
 
 
 class TargetInterface(AbstractInterface):

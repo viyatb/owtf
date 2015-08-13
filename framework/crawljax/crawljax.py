@@ -24,7 +24,10 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         self.db_config = self.get_component("db_config")
         self.target = self.get_component("target")
         self.db = self.get_component("db")
+        if not self.check_dependency():
+            print "Please run the setup script again"
         self.init()
+        self.is_initiated = 0 #if above passes, then set to 0
 
     @static_method
     def check_dependency()
@@ -51,8 +54,23 @@ class Crawljax(BaseComponent, CrawljaxInterface):
             try:
                 os.kill(pid, signal.SIGKILL)
             except:
-                print("Cannot kill the Crawljax process")
+                print "Cannot kill the Crawljax process"
 
     def start(self):
-        pass
+        try:
+            subprocess.Popen([
+                'sh',
+                'start.sh',
+                '4444'
+            ],
+            shell=True,
+            stdout=subprocess.PIPE)
+            # set initiated var to 1
+            self.is_initiated = 1
+        except:
+            print "Cannot start Crawljax"
+
+    def stop(self):
+        # simply reuse the init function
+        self.init()
 
