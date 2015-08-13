@@ -8,6 +8,7 @@ from framework.dependency_management.interfaces import CrawljaxInterface
 
 
 RootDir = os.path.dirname(os.path.abspath(__file__))
+script = os.path.join(RootDir, "start.sh")
 
 
 class Crawljax(BaseComponent, CrawljaxInterface):
@@ -43,26 +44,17 @@ class Crawljax(BaseComponent, CrawljaxInterface):
             if it is, then stop the process and clean-up
         """
         # check if crawljax is running
-        pid = subprocess.Popen([
-                'ps -ef',
-                '| grep "crawljax-web-3.6.jar"',
-                "| awk '{print $2}'"
-        ])
+        pid = os.system("ps -ef | grep crawljax-web-3.6.jar | awk '{print $2}'")
         if pid:
             try:
                 os.kill(pid, signal.SIGKILL)
             except:
-                print "Cannot kill the Crawljax process"
+                print "No such process"
 
     def start(self):
+        print script
         try:
-            subprocess.Popen([
-                'sh',
-                'start.sh',
-                '4444'
-            ],
-            shell=True,
-            stdout=subprocess.PIPE)
+            os.system("sh "+script+" 4444")
             # set initiated var to 1
             self.is_initiated = 1
         except:
