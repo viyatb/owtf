@@ -33,6 +33,7 @@ from framework.shell.blocking_shell import Shell
 from framework.timer import Timer
 from framework.zap import ZAP_API
 from framework.zest import Zest
+from framework.crawljax.crawljax import Crawljax
 
 
 class ComponentInitialiser():
@@ -72,6 +73,8 @@ class ComponentInitialiser():
         TransactionManager()
         config.init()
         zest.init()
+        crawljax = Crawljax()
+        crawljax.init()
 
     @staticmethod
     def initialisation_phase_2(args):

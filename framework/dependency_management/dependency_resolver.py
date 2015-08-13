@@ -29,6 +29,7 @@ class ServiceLocator:
         "worker_manager",
         "zap_api",
         "zest",
+        "crawljax",
         "target",
         "reporter"
     ]
