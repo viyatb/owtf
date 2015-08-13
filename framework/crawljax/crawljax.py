@@ -27,8 +27,8 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         self.init()
         self.is_initiated = 0 #if above passes, then set to 0
 
-    @static_method
-    def check_dependency()
+    @staticmethod
+    def check_dependency():
         # check if the lib/ is populated and crawljax_web.jar is present or not
         jar = os.path.join(RootDir, "crawljax-web-3.6.jar")
         lib_dir = os.path.join(RootDir, "lib/")
@@ -37,7 +37,7 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         else:
             return False
 
-    @static_method
+    @staticmethod
     def init():
         """ checks if Crawljax is running in the background or not
             if it is, then stop the process and clean-up
