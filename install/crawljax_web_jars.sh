@@ -36,13 +36,15 @@ get_config_value(){
     echo "$(grep -i $parameter $file | sed  "s|$parameter: ||g;s|~|$HOME|g")"
 }
 
-crawljax_jar="$RootDir/crawljax/crawljax-web-3.6.jar"
+crawljax_jar="$RootDir/framework/crawljax/crawljax-web-3.6.jar"
 
 if [ ! -f $crawljax_jar ]; then
     # Download jars from repo
     wget https://github.com/crawljax/crawljax/releases/download/crawljax-3.6/crawljax-web-3.6-distribution.zip -O crawljax_web.zip;
     # Extract
-    unzip crawljax_web.zip -d $ROOTDIR/crawljax
+    unzip crawljax_web.zip -d $ROOTDIR/framework/crawljax/
     echo "Extract complete!"
+    # cleanup
+    rm crawljax_web.zip
 fi
 
