@@ -28,7 +28,7 @@
         </div>
     </div>
     <div class="row">
-        <button class="btn btn-danger">AJAX Crawl</button>
+        <button id="ajaxcrawl" class="btn btn-danger" onclick="start_crawljax();">AJAX Crawl</button>
     </div>
 </div>
 <!-- End Target INFO -->
@@ -117,6 +117,20 @@ var mySpace = {
                     target_config:{},
                     sessions_ui_url: "{{ sessions_ui_url }}",
                   };
+
+function start_crawljax() {
+    $.ajax({
+      url: "/api/ajaxcrawl/",
+      type: 'POST',
+      data: "start=1",
+      success: function(data) {
+               success(data+" Visit 127.0.0.1:8080");
+            },
+      error: function(data) {
+               alert(data);
+            }
+    });
+}
 
 function clearFilters() {
     mySpace.filter_data = {};

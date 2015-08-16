@@ -353,6 +353,9 @@ class CrawljaxHandler(custom_handlers.APIRequestHandler):
         should_start = self.get_argument('start', None)
         if should_start:
             self.get_component("crawljax").start()
+            self.write("Crawljax started!")
+        else:
+            self.write("Cannot start Crawljax")
 
     def put(self, target_id=None):
         raise tornado.web.HTTPError(400)
