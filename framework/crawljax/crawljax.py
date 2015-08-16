@@ -25,8 +25,7 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         self.db = self.get_component("db")
         if not self.check_dependency():
             print "Please run the setup script again"
-        self.init()
-        self.is_initiated = 0 #if above passes, then set to 0
+        self.is_initiated = 1 #if above passes, then set to 0
 
     @staticmethod
     def check_dependency():
@@ -39,28 +38,17 @@ class Crawljax(BaseComponent, CrawljaxInterface):
             return False
 
     @staticmethod
-    def init():
+    def stop():
         """ checks if Crawljax is running in the background or not
             if it is, then stop the process and clean-up
         """
         # check if crawljax is running
-        pid = os.system("ps -ef | grep crawljax-web-3.6.jar | awk '{print $2}'")
-        if pid:
-            try:
-                os.kill(pid, signal.SIGKILL)
-            except:
-                print "No such process"
+        subprocess.check_output('kill $(ps -ef | grep crawljax-web-3.6.jar | grep -v grep | awk \'{print $2}\')', shell=True)
 
     def start(self):
-        print script
         try:
-            os.system("sh "+script+" 4444")
-            # set initiated var to 1
-            self.is_initiated = 1
+            self.is_initiated = os.system("sh %s 4444 &" % script)
+            print "[*] Crawljax web interface started on http://127.0.0.1:4444"
         except:
-            print "Cannot start Crawljax"
-
-    def stop(self):
-        # simply reuse the init function
-        self.init()
+            print "Cannot initiate Crawljax"
 
