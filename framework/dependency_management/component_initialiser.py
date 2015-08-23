@@ -74,7 +74,6 @@ class ComponentInitialiser():
         config.init()
         zest.init()
         crawljax = Crawljax()
-        crawljax.init()
 
     @staticmethod
     def initialisation_phase_2(args):

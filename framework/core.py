@@ -49,6 +49,7 @@ from framework.interface import server, cli
 from framework.http.proxy import proxy, transaction_logger
 from framework.plugin import worker_manager
 from framework.lib.formatters import ConsoleFormatter, FileFormatter
+from framework.crawljax import crawljax
 
 
 class Core(BaseComponent):
@@ -86,6 +87,7 @@ class Core(BaseComponent):
         self.pnh_log_file()  # <-- This is not supposed to be here
         self.enable_logging()
         # The following attributes will be initialised later
+        self.crawljax = self.get_component("crawljax")
         self.tor_process = None
 
     def create_dirs(self):
@@ -325,6 +327,9 @@ class Core(BaseComponent):
             if getattr(self, "db", None) is not None:
                 # Properly stop any DB instances.
                 self.db.clean_up()
+            # cleanup Crawljax
+            if getattr(self, "crawljax", None) is not None:
+                self.crawljax.stop()
             # Stop any tornado instance.
             if getattr(self, "cli_server", None) is not None:
                 self.cli_server.clean_up()
@@ -342,4 +347,4 @@ class Core(BaseComponent):
             try:
                 os.kill(int(pid_str), sig)
             except:
-                logging.warning("Unable to kill the processus: '%s'", pid_str)
+                logging.warning("Unable to kill the processes: '%s'", pid_str)
