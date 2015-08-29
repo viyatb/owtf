@@ -2,6 +2,7 @@
 from __future__ import print_function
 import os
 import subprocess
+import logging
 from framework.dependency_management.dependency_resolver import BaseComponent
 from framework.dependency_management.interfaces import CrawljaxInterface
 
@@ -23,7 +24,7 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         self.target = self.get_component("target")
         self.db = self.get_component("db")
         if not self.check_dependency():
-            print("Please run the setup script again")
+            print("[*] Please run the setup script again")
         self.is_initiated = 1 #if above passes, then set to 0
 
     @staticmethod
@@ -45,11 +46,11 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         subprocess.check_output('kill $(ps -ef | grep crawljax-web-3.6.jar | grep -v grep | awk \'{print $2}\')', shell=True)
 
     def start(self):
-        interface = self.db_config.Get("CRAWLJAX_INTERFACE")
-        port = self.db_config.Get("CRAWLJAX_PORT")
+        interface = self.config.FrameworkConfigGet("CRAWLJAX_INTERFACE")
+        port = self.config.FrameworkConfigGet("CRAWLJAX_PORT")
         try:
             self.is_initiated = os.system("sh %s %s %s &" % (script, interface, port))
-            print("[*] Crawljax web interface started on http://%s:%s" % (interface, port))
+            logging.warn("[*] Crawljax web interface started on http://%s:%s" % (interface, port))
         except:
-            print("Cannot initiate Crawljax")
+            logging.warn("Cannot initiate Crawljax")
 
