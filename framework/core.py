@@ -81,6 +81,7 @@ class Core(BaseComponent):
         self.config = self.get_component("config")
         self.db_config = self.get_component("db_config")
         self.error_handler = self.get_component("error_handler")
+        self.crawljax = self.get_component("crawljax")
         # ----------------------- Directory creation ----------------------- #
         self.create_dirs()
         self.pnh_log_file()  # <-- This is not supposed to be here
@@ -325,6 +326,10 @@ class Core(BaseComponent):
             if getattr(self, "db", None) is not None:
                 # Properly stop any DB instances.
                 self.db.clean_up()
+            # stop crawljax
+            if getattr(self, "Crawljax", None) is not None:
+                # kill instance
+                self.crawljax.stop()
             # Stop any tornado instance.
             if getattr(self, "cli_server", None) is not None:
                 self.cli_server.clean_up()
