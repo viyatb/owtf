@@ -1,8 +1,6 @@
 #!/usr/bin/python2
 from __future__ import print_function
-import sys
 import os
-import signal
 import subprocess
 from framework.dependency_management.dependency_resolver import BaseComponent
 from framework.dependency_management.interfaces import CrawljaxInterface
@@ -50,8 +48,8 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         interface = self.db_config.Get("CRAWLJAX_INTERFACE")
         port = self.db_config.Get("CRAWLJAX_PORT")
         try:
-            self.is_initiated = os.system("sh %s %s %d &" % (script, interface, port))
-            print("[*] Crawljax web interface started on http://%s:%d" % (interface, port))
+            self.is_initiated = os.system("sh %s %s %s &" % (script, interface, port))
+            print("[*] Crawljax web interface started on http://%s:%s" % (interface, port))
         except:
             print("Cannot initiate Crawljax")
 

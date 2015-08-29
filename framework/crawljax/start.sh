@@ -10,5 +10,5 @@ SCRIPTNAME=$0
 BASEDIR=$(dirname "$SCRIPTNAME")
 cd $BASEDIR
 
-exec java -Djetty.host=${interface} -Dhttp.proxyHost=${host} -Dhttp.proxyPort=${proxy_port} -jar "${BASEDIR}/crawljax-web-3.6.jar" -p ${port} > ajax_crawl.log 2>&1
+exec java -Dhttp.proxyHost=${host} -Dhttp.proxyPort=${proxy_port} -Djetty.host=${interface} -jar "${BASEDIR}/crawljax-web-3.6.jar" -p ${port} > ajax_crawl.log 2>&1
 
