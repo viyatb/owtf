@@ -199,8 +199,8 @@ function start_crawljax() {
         url: "/api/ajaxcrawl/",
         type: 'POST',
         data: form.serialize(),
-        success: function(data){
-             alert(data);
+        success: function(){
+             alertSuccess("Config params sent!");
         }
       });
     })

@@ -29,8 +29,8 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         if not self.check_dependency():
             print("[*] Please run the setup script again")
         # check if enabled by the user
-        if self.db_config.Get("AJAX_CRAWL"):
-            self.is_initiated = 1 #if above passes, then set to 0
+        if self.db_config.Get("AJAX_CRAWL") == "True":
+            self.is_initiated = 1
         self.interface = self.db_config.Get("CRAWLJAX_INTERFACE")
         self.port = self.db_config.Get("CRAWLJAX_PORT")
 
@@ -67,7 +67,6 @@ class Crawljax(BaseComponent, CrawljaxInterface):
 
 
     def scan(self, config):
-        yield 1
         print("[*] Sending config data now...")
         config_post = "http://%s:%s/rest/configurations/" % (self.interface, self.port)
         start_scan = "http://%s:%s/rest/history/" % (self.interface, self.port)
