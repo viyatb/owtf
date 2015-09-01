@@ -60,14 +60,13 @@ class Crawljax(BaseComponent, CrawljaxInterface):
     def start(self):
         try:
             self.start = os.system("sh %s %s %s &" % (script, self.interface, self.port))
-            print("[*] Crawljax web interface started on http://%s:%s" % (self.interface, self.port))
+            logging.warn("Crawljax web interface started on http://%s:%s" % (self.interface, self.port))
         except:
-            print("Cannot initiate Crawljax")
             logging.warn("Cannot initiate Crawljax")
 
 
     def scan(self, config):
-        print("[*] Sending config data now...")
+        logging.info("Sending config data now...")
         config_post = "http://%s:%s/rest/configurations/" % (self.interface, self.port)
         start_scan = "http://%s:%s/rest/history/" % (self.interface, self.port)
 
@@ -82,7 +81,7 @@ class Crawljax(BaseComponent, CrawljaxInterface):
             start_scan_req.add_header('Content-Type', 'application/json')
             scan_res = urllib2.urlopen(start_scan_req, config["name"])
             if scan_res.getcode() == 200:
-                print("[*] Crawljax scan started...")
+                logging.info("Crawljax scan started...")
             else:
-                print("[*] There was an error.")
+                logging.info("There was an error.")
 
