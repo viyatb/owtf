@@ -27,9 +27,6 @@
             <h3 id="rankingTargetInfo"></h3>
         </div>
     </div>
-    <div class="row">
-        <button id="ajaxcrawl" class="btn btn-danger" onclick="start_crawljax();">AJAX Crawl</button>
-    </div>
 </div>
 <!-- End Target INFO -->
 
@@ -52,12 +49,89 @@
                     <li><a href="#" onclick="window.open(mySpace.url_log_url);"><i class="fa fa-link"></i> URL Log </a></li>
                 </ul>
             </div>
+            <button class="btn btn-danger" data-toggle="modal" data-target="#crawlparams" id="ajaxcrawl">AJAX Crawl</button>
         </div>
     </div>
 </div>
 <!-- End Buttons -->
 
 <br />
+
+<div class="modal fade" id="crawlparams" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="crawlparamsModalLabel">AJAX Crawl</h4>
+      </div>
+      <div class="modal-body" id="crawlparamsBody">
+        <form id="crawlform" class="form-horizontal" method="post">
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="browser">Browser</label>
+                <div class="col-sm-4">
+                    <select name="browser" class="form-control">
+                        <option>PhantomJS</option>
+                        <option>Firefox</option>
+                        <option>Chrome(needs the Chrome webdriver in $PATH)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="numBrowsers">Number of browser instances</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="numBrowsers" id="numBrowsers" placeholder="2">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="maxDepth">Max crawl depth</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="maxDepth" id="maxDepth" placeholder="10">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="maxState">Maximum Crawl states</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="maxState" id="maxState" placeholder="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="maxDuration">Maximum Duration (min, 0 is unlimited)</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="maxDuration" id="maxDuration" placeholder="60">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="eventWaitTime">Event Wait time (ms)</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="eventWaitTime" id="eventWaitTime" placeholder="1000">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="reloadWaitTime">Reload time (ms)</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="reloadWaitTime" id="reloadWaitTime" placeholder="1000">
+                </div>
+            </div>
+            <div class="checkbox">
+            <label>
+                <input type="checkbox" name="clickOnce" value="1">
+                Click elements once
+            </label>
+            </div>
+            <div class="checkbox">
+            <label>
+                <input type="checkbox" name="randomFormInput" value="1">
+                Use random values in form fields
+            </label>
+            </div>
+            <br />
+            <button type="submit" value="submit" onclick="start_crawljax();">Start</button>
+        </form>
+        </div>
+      </div>
+    </div>
+</div>
+
 
 <!-- Plugin outputs loaded by JS and refreshed automatically -->
 <div class="row-fluid" id="pluginReport">
@@ -119,17 +193,17 @@ var mySpace = {
                   };
 
 function start_crawljax() {
-    $.ajax({
-      url: "/api/ajaxcrawl/",
-      type: 'POST',
-      data: "start=1",
-      success: function(data) {
-               success(data+" Visit 127.0.0.1:8080");
-            },
-      error: function(data) {
-               alert(data);
-            }
-    });
+    $('#crawlform').on('submit', function(e) {
+      var form = $(this);
+      $.ajax({
+        url: "/api/ajaxcrawl/",
+        type: 'POST',
+        data: form.serialize(),
+        success: function(data){
+             alert(data);
+        }
+      });
+    })
 }
 
 function clearFilters() {

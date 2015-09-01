@@ -1,7 +1,9 @@
 import tornado.web
+from urlparse import urlparse
 from BaseHTTPServer import BaseHTTPRequestHandler
 from StringIO import StringIO
 import json
+import logging
 from framework.lib import exceptions
 from framework.lib.exceptions import InvalidTargetReference
 from framework.lib.general import cprint
@@ -346,25 +348,49 @@ class ForwardToZAPHandler(custom_handlers.APIRequestHandler):
 class CrawljaxHandler(custom_handlers.APIRequestHandler):
     SUPPORTED_METHODS = ['POST']
 
-    def get(self, target_id=None):
-        raise tornado.web.HTTPError(400)
-
+    @tornado.web.asynchronous
     def post(self, target_id=None):
-        should_start = self.get_argument('start', None)
-        if should_start:
-            self.get_component("crawljax").start()
-            self.write("Crawljax started!")
-        else:
-            self.write("Cannot start Crawljax")
+        browser =  self.get_argument('browser')
+        clickOnce = self.get_argument('clickOnce', True)
+        eventWaitTime = self.get_argument('eventWaitTime')
+        maxDepth = self.get_argument('maxDepth')
+        maxDuration = self.get_argument('maxDuration')
+        maxState =  self.get_argument('maxState')
+        name = urlparse(self.get_component("target").GetTargetConfig()['target_url']).hostname
+        numBrowsers = self.get_argument('numBrowsers')
+        reloadWaitTime = self.get_argument('reloadWaitTime')
+        randomFormInput = self.get_argument('randomFormInput', True)
+        config = {
+            "bootBrowser": True,
+            "browser": browser,
+            "clickDefault": None,
+            "clickOnce": clickOnce,
+            "eventWaitTime": eventWaitTime,
+            "clickRules": [],
+            "comparators": [],
+            "formInputValues": [],
+            "id": None,
+            "invariants": [],
+            "lastCrawl": None,
+            "lastDuration": 0,
+            "lastModified": None,
+            "maxDepth": maxDepth,
+            "maxDuration": maxDuration,
+            "maxState": maxState,
+            "name": name,
+            "numBrowsers": numBrowsers,
+            "pageConditions": [],
+            "plugins": [],
+            "randomFormInput": randomFormInput,
+            "reloadWaitTime": reloadWaitTime,
+            "url": name
+        }
 
-    def put(self, target_id=None):
-        raise tornado.web.HTTPError(400)
-
-    def patch(self, target_id=None):
-        raise tornado.web.HTTPError(400)
-
-    def delete(self, target_id=None):
-        raise tornado.web.HTTPError(400)
+        try:
+            self.get_component("crawljax").scan(config)
+            logging.warn("Scan started!")
+        except:
+            logging.warn("Cannot start Crawljax")
 
 
 class TransactionDataHandler(custom_handlers.APIRequestHandler):

@@ -1,10 +1,12 @@
 #!/usr/bin/python2
 from __future__ import print_function
 import os
-import subprocess
+import signal
+import json
 import logging
 from framework.dependency_management.dependency_resolver import BaseComponent
 from framework.dependency_management.interfaces import CrawljaxInterface
+import urllib2
 
 
 RootDir = os.path.dirname(os.path.abspath(__file__))
@@ -17,6 +19,7 @@ class Crawljax(BaseComponent, CrawljaxInterface):
     """
     COMPONENT_NAME = "crawljax"
 
+
     def __init__(self):
         self.register_in_service_locator()
         self.config = self.get_component("config")
@@ -25,7 +28,13 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         self.db = self.get_component("db")
         if not self.check_dependency():
             print("[*] Please run the setup script again")
-        self.is_initiated = 1 #if above passes, then set to 0
+        # check if enabled by the user
+        if self.db_config.Get("AJAX_CRAWL"):
+            self.is_initiated = 1 #if above passes, then set to 0
+        self.interface = self.db_config.Get("CRAWLJAX_INTERFACE")
+        self.port = self.db_config.Get("CRAWLJAX_PORT")
+
+
 
     @staticmethod
     def check_dependency():
@@ -43,14 +52,38 @@ class Crawljax(BaseComponent, CrawljaxInterface):
             if it is, then stop the process and clean-up
         """
         # check if crawljax is running
-        subprocess.check_output('kill $(ps -ef | grep crawljax-web-3.6.jar | grep -v grep | awk \'{print $2}\')', shell=True)
+        for line in os.popen("ps ax | grep crawljax-web-3.6.jar | grep -v grep"):
+            fields = line.split()
+            pid = fields[0]
+            os.kill(int(pid), signal.SIGKILL)
 
     def start(self):
-        interface = self.config.FrameworkConfigGet("CRAWLJAX_INTERFACE")
-        port = self.config.FrameworkConfigGet("CRAWLJAX_PORT")
         try:
-            self.is_initiated = os.system("sh %s %s %s &" % (script, interface, port))
-            logging.warn("[*] Crawljax web interface started on http://%s:%s" % (interface, port))
+            self.start = os.system("sh %s %s %s &" % (script, self.interface, self.port))
+            print("[*] Crawljax web interface started on http://%s:%s" % (self.interface, self.port))
         except:
+            print("Cannot initiate Crawljax")
             logging.warn("Cannot initiate Crawljax")
+
+
+    def scan(self, config):
+        yield 1
+        print("[*] Sending config data now...")
+        config_post = "http://%s:%s/rest/configurations/" % (self.interface, self.port)
+        start_scan = "http://%s:%s/rest/history/" % (self.interface, self.port)
+
+        # post the config
+        conf_json = json.dumps(config)
+        config_create = urllib2.Request(config_post)
+        config_create.add_header('Content-Type', 'application/json')
+        response = urllib2.urlopen(config_create, conf_json)
+        if response.getcode() == 200:
+            # now start the scan
+            start_scan_req = urllib2.Request(start_scan)
+            start_scan_req.add_header('Content-Type', 'application/json')
+            scan_res = urllib2.urlopen(start_scan_req, config["name"])
+            if scan_res.getcode() == 200:
+                print("[*] Crawljax scan started...")
+            else:
+                print("[*] There was an error.")
 
