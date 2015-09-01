@@ -235,9 +235,18 @@ class Core(BaseComponent):
 
         self.start_botnet_mode(options)
         self.start_proxy(options)  # Proxy mode is started in that function.
+        self.initialise_crawljax()
         # Set anonymised invoking command for error dump info.
         self.error_handler.SetCommand(OutputCleaner.anonymise_command(command))
         return True
+
+    def initialise_crawljax(self):
+        # stop the crawljax instances if already there
+        logging.info("Stopping any running Crawljax instances")
+        self.crawljax.stop()
+        if self.db_config.Get("AJAX_CRAWL") == "True":
+            self.crawljax.start()
+            logging.info("AJAX crawl enabled. Starting Crawljax...")
 
     def initialise_plugin_handler_and_params(self, options):
         # The order is important here ;)
