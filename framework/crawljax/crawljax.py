@@ -4,9 +4,10 @@ import os
 import signal
 import json
 import logging
+import urllib2
 from framework.dependency_management.dependency_resolver import BaseComponent
 from framework.dependency_management.interfaces import CrawljaxInterface
-import urllib2
+from framework.utils import FileOperations
 
 
 RootDir = os.path.dirname(os.path.abspath(__file__))
@@ -27,14 +28,14 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         self.target = self.get_component("target")
         self.db = self.get_component("db")
         if not self.check_dependency():
-            print("[*] Please run the setup script again")
+            logging.info("Please run the setup script again")
         # check if enabled by the user
         if self.db_config.Get("AJAX_CRAWL") == "True":
             self.is_initiated = 1
         self.interface = self.db_config.Get("CRAWLJAX_INTERFACE")
         self.port = self.db_config.Get("CRAWLJAX_PORT")
-
-
+        self.crawljax_dir = os.path.join(self.config.RootDir, self.config.FrameworkConfigGet("OUTPUT_PATH"), 'misc', 'crawljax')
+        FileOperations.create_missing_dirs(self.crawljax_dir)
 
     @staticmethod
     def check_dependency():
@@ -66,22 +67,25 @@ class Crawljax(BaseComponent, CrawljaxInterface):
 
 
     def scan(self, config):
+        conf = config
         logging.info("Sending config data now...")
-        config_post = "http://%s:%s/rest/configurations/" % (self.interface, self.port)
-        start_scan = "http://%s:%s/rest/history/" % (self.interface, self.port)
+        config_post = 'http://%s:%s/rest/configurations/' % (self.interface, self.port)
+        start_scan = 'http://%s:%s/rest/history/' % (self.interface, self.port)
 
         # post the config
-        conf_json = json.dumps(config)
-        config_create = urllib2.Request(config_post)
+        conf_json = json.dumps(conf)
+        config_create = urllib2.Request(config_post, conf_json)
         config_create.add_header('Content-Type', 'application/json')
-        response = urllib2.urlopen(config_create, conf_json)
-        if response.getcode() == 200:
+        conf_res = urllib2.urlopen(config_create)
+        if conf_res.code == 200:
             # now start the scan
-            start_scan_req = urllib2.Request(start_scan)
-            start_scan_req.add_header('Content-Type', 'application/json')
-            scan_res = urllib2.urlopen(start_scan_req, config["name"])
-            if scan_res.getcode() == 200:
+            start_scan_req = urllib2.Request(start_scan, conf["name"].replace('.', '-'))
+            start_scan_req.add_header('Content-Type', 'text/plain')
+            scan_res = urllib2.urlopen(start_scan_req)
+            if scan_res.code == 200:
                 logging.info("Crawljax scan started...")
+                return {"started": True}
             else:
                 logging.info("There was an error.")
+                return {"started": False}
 
