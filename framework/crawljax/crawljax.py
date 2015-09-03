@@ -32,13 +32,18 @@ class Crawljax(BaseComponent, CrawljaxInterface):
         # check if enabled by the user
         if self.db_config.Get("AJAX_CRAWL") == "True":
             self.is_initiated = 1
+        # get the interface and port for crawljax
         self.interface = self.db_config.Get("CRAWLJAX_INTERFACE")
         self.port = self.db_config.Get("CRAWLJAX_PORT")
+        # create the dirs if not already
         self.crawljax_dir = os.path.join(self.config.RootDir, self.config.FrameworkConfigGet("OUTPUT_PATH"), 'misc', 'crawljax')
         FileOperations.create_missing_dirs(self.crawljax_dir)
 
     @staticmethod
     def check_dependency():
+        """
+        :rtype: boolean
+        """
         # check if the lib/ is populated and crawljax_web.jar is present or not
         jar = os.path.join(RootDir, "crawljax-web-3.6.jar")
         lib_dir = os.path.join(RootDir, "lib/")
@@ -49,8 +54,8 @@ class Crawljax(BaseComponent, CrawljaxInterface):
 
     @staticmethod
     def stop():
-        """ checks if Crawljax is running in the background or not
-            if it is, then stop the process and clean-up
+        """
+        Checks if Crawljax is running in the background or not if it is, then stop the process and clean-up
         """
         # check if crawljax is running
         for line in os.popen("ps ax | grep crawljax-web-3.6.jar | grep -v grep"):
@@ -59,6 +64,9 @@ class Crawljax(BaseComponent, CrawljaxInterface):
             os.kill(int(pid), signal.SIGKILL)
 
     def start(self):
+        """
+        Starts the Crawljax app with specified interface and port
+        """
         try:
             self.start = os.system("sh %s %s %s &" % (script, self.interface, self.port))
             logging.warn("Crawljax web interface started on http://%s:%s" % (self.interface, self.port))
@@ -67,6 +75,12 @@ class Crawljax(BaseComponent, CrawljaxInterface):
 
 
     def scan(self, config):
+        """
+        Scan intiator using Crawljax's rest api
+        :param config: config dict
+        :type config: dict
+        :rtype: boolean
+        """
         conf = config
         logging.info("Sending config data now...")
         config_post = 'http://%s:%s/rest/configurations/' % (self.interface, self.port)
@@ -84,8 +98,8 @@ class Crawljax(BaseComponent, CrawljaxInterface):
             scan_res = urllib2.urlopen(start_scan_req)
             if scan_res.code == 200:
                 logging.info("Crawljax scan started...")
-                return {"started": True}
+                return True
             else:
                 logging.info("There was an error.")
-                return {"started": False}
+                return False
 
