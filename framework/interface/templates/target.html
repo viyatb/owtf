@@ -65,14 +65,14 @@
         <h4 class="modal-title" id="crawlparamsModalLabel">AJAX Crawl</h4>
       </div>
       <div class="modal-body" id="crawlparamsBody">
-        <form id="crawlform" class="form-horizontal" method="post">
+        <form id="crawlform" action="/api/ajaxcrawl" class="form-horizontal" method="post">
             <div class="form-group">
                 <label class="col-sm-2 control-label" for="browser">Browser</label>
                 <div class="col-sm-4">
                     <select name="browser" class="form-control">
-                        <option>PhantomJS</option>
-                        <option>Firefox</option>
-                        <option>Chrome(needs the Chrome webdriver in $PATH)</option>
+                        <option>PHANTOMJS</option>
+                        <option>FIREFOX</option>
+                        <option>CHROME</option>
                     </select>
                 </div>
             </div>
@@ -125,7 +125,7 @@
             </label>
             </div>
             <br />
-            <button type="submit" value="submit" onclick="start_crawljax();">Start</button>
+            <button type="submit" value="submit" class="btn btn-success" onclick="start_crawljax();">Start</button>
         </form>
         </div>
       </div>
@@ -196,7 +196,7 @@ function start_crawljax() {
     $('#crawlform').on('submit', function(e) {
       var form = $(this);
       $.ajax({
-        url: "/api/ajaxcrawl/",
+        url: "/api/ajaxcrawl",
         type: 'POST',
         data: form.serialize(),
         success: function(){
