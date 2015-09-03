@@ -2,9 +2,7 @@
 from __future__ import print_function
 import os
 import signal
-import json
 import logging
-import urllib2
 from framework.dependency_management.dependency_resolver import BaseComponent
 from framework.dependency_management.interfaces import CrawljaxInterface
 from framework.utils import FileOperations
@@ -72,34 +70,4 @@ class Crawljax(BaseComponent, CrawljaxInterface):
             logging.warn("Crawljax web interface started on http://%s:%s" % (self.interface, self.port))
         except:
             logging.warn("Cannot initiate Crawljax")
-
-
-    def scan(self, config):
-        """
-        Scan intiator using Crawljax's rest api
-        :param config: config dict
-        :type config: dict
-        :rtype: boolean
-        """
-        conf = config
-        logging.info("Sending config data now...")
-        config_post = 'http://%s:%s/rest/configurations/' % (self.interface, self.port)
-        start_scan = 'http://%s:%s/rest/history/' % (self.interface, self.port)
-
-        # post the config
-        conf_json = json.dumps(conf)
-        config_create = urllib2.Request(config_post, conf_json)
-        config_create.add_header('Content-Type', 'application/json')
-        conf_res = urllib2.urlopen(config_create)
-        if conf_res.code == 200:
-            # now start the scan
-            start_scan_req = urllib2.Request(start_scan, conf["name"].replace('.', '-'))
-            start_scan_req.add_header('Content-Type', 'text/plain')
-            scan_res = urllib2.urlopen(start_scan_req)
-            if scan_res.code == 200:
-                logging.info("Crawljax scan started...")
-                return True
-            else:
-                logging.info("There was an error.")
-                return False
 
