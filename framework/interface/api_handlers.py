@@ -1,3 +1,4 @@
+import tornado
 import tornado.web
 from urlparse import urlparse
 from BaseHTTPServer import BaseHTTPRequestHandler
@@ -286,7 +287,7 @@ class ReplayRequestHandler(custom_handlers.APIRequestHandler):
             res_data['BODY'] = trans_obj.DecodedContent
             self.write(res_data)
         else:
-            print "Cannot send the given HTTP Request"
+            logging.warn("Cannot send the given HTTP Request")
             #send something back to interface to let the user know
 
     @tornado.web.asynchronous
@@ -348,10 +349,9 @@ class ForwardToZAPHandler(custom_handlers.APIRequestHandler):
 class CrawljaxHandler(custom_handlers.APIRequestHandler):
     SUPPORTED_METHODS = ['POST']
 
-    @tornado.web.asynchronous
-    def post(self, target_id=None):
+    def post(self):
         browser =  self.get_argument('browser')
-        clickOnce = self.get_argument('clickOnce', True)
+        clickOnce = self.get_argument('clickOnce', False)
         eventWaitTime = self.get_argument('eventWaitTime')
         maxDepth = self.get_argument('maxDepth')
         maxDuration = self.get_argument('maxDuration')
@@ -359,12 +359,12 @@ class CrawljaxHandler(custom_handlers.APIRequestHandler):
         name = urlparse(self.get_component("target").GetTargetConfig()['target_url']).hostname
         numBrowsers = self.get_argument('numBrowsers')
         reloadWaitTime = self.get_argument('reloadWaitTime')
-        randomFormInput = self.get_argument('randomFormInput', True)
+        randomFormInput = self.get_argument('randomFormInput', False)
         config = {
             "bootBrowser": True,
             "browser": browser,
-            "clickDefault": None,
-            "clickOnce": clickOnce,
+            "clickDefault": True,
+            "clickOnce": bool(clickOnce),
             "eventWaitTime": eventWaitTime,
             "clickRules": [],
             "comparators": [],
@@ -381,16 +381,44 @@ class CrawljaxHandler(custom_handlers.APIRequestHandler):
             "numBrowsers": numBrowsers,
             "pageConditions": [],
             "plugins": [],
-            "randomFormInput": randomFormInput,
+            "randomFormInput": bool(randomFormInput),
             "reloadWaitTime": reloadWaitTime,
-            "url": name
+            "url": self.get_component("target").GetTargetConfig()['target_url'],
         }
-
+        # urls
+        interface = self.get_component("db_config").Get("CRAWLJAX_INTERFACE")
+        port = self.get_component("db_config").Get("CRAWLJAX_PORT")
+        config_post = 'http://%s:%s/rest/configurations/' % (interface, port)
+        start_scan = 'http://%s:%s/rest/history/' % (interface, port)
+        # prepare to send the config data
+        conf_json = json.dumps(config)
+        # prepare the client
+        client = tornado.httpclient.HTTPClient()
+        conf_req = tornado.httpclient.HTTPRequest(
+                        url=config_post,
+                        method="POST",
+                        body=conf_json,
+                        headers={'Content-Type': 'application/json'},
+                    )
         try:
-            self.get_component("crawljax").scan(config)
-            logging.warn("Scan started!")
+            response = client.fetch(conf_req)
+            if response.code == 200:
+                scan_id = config["name"].replace('.', '-')
+                scan_req = tornado.httpclient.HTTPRequest(
+                    url=start_scan,
+                    method="POST",
+                    body=scan_id,
+                    headers={'Content-Type': 'application/json'},
+                )
+                scan_res = client.fetch(scan_req)
+                if scan_res.code == 200:
+                    logging.warn("Scan started!")
+                else:
+                    logging.warn("Cannot start the scan")
+                client.close()
         except:
-            logging.warn("Cannot start Crawljax")
+            logging.warn("Cannot post the config!")
+            client.close()
 
 
 class TransactionDataHandler(custom_handlers.APIRequestHandler):

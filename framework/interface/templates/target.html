@@ -65,14 +65,14 @@
         <h4 class="modal-title" id="crawlparamsModalLabel">AJAX Crawl</h4>
       </div>
       <div class="modal-body" id="crawlparamsBody">
-        <form id="crawlform" action="/api/ajaxcrawl" class="form-horizontal" method="post">
+        <form id="crawlform" class="form-horizontal" method="post">
             <div class="form-group">
                 <label class="col-sm-2 control-label" for="browser">Browser</label>
                 <div class="col-sm-4">
                     <select name="browser" class="form-control">
-                        <option>PHANTOMJS</option>
-                        <option>FIREFOX</option>
-                        <option>CHROME</option>
+                        <option value="PHANTOMJS">PhantomJS</option>
+                        <option value="FIREFOX">Mozilla Firefox</option>
+                        <option value="CHROME">Chrome (needs chrome driver in $PATH)</option>
                     </select>
                 </div>
             </div>
