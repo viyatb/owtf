@@ -132,3 +132,4 @@ debian/owtf/
 debian/.debhelper/
 *.deb
 *.tar.gz
+src/
